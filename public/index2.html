@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		
+		<script src="jquery.min.js" type="text/javascript" charset="utf-8"></script>
+		<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+		<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+		<link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+		<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+		<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+		<link href="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.css" rel="stylesheet">
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote.js"></script>
+		<!-- <script src="file.js"></script> -->
+		<style type="text/css">
+			#tbody2 img{
+				width: 200px ;
+				height: 200px;
+				float: left;
+			}
+			
+		</style>
+	</head>	
+		<body>
+											<div class="info col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+						<!-- Button trigger modal -->
+						<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal2">
+                上传图片
+              </button>
+						<!-- Modal -->
+						<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+							<div class="modal-dialog" role="document">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+										<h4 class="modal-title" id="myModalLabel">carousel</h4>
+									</div>
+									<div class="modal-body">
+										img：<input type="file" onchange="getFiles(this)" class="img2" /><button class="btn_flie">提交</button>
+                          <div class="box"></div>
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+										<button type="button" class="pr2 btn btn-primary" data-dismiss="modal">确认修改</button>
+										<button type="button" class="btn22 btn btn-primary" data-dismiss="modal">Save changes</button>
+									</div>
+								</div>
+							</div>
+						</div>
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <tbody id="tbody2"></tbody>
+              </table>
+            </div>
+					</div>
+			
+			
+	</body>
+</html>
+
+<script type="text/javascript">
+//轮播
+	  ajax2()
+                $(".btn22").click(function(){
+                    $.ajax({
+                        url:"http://localhost:3000/our/con",
+                        type:"POST",
+                        success:function(d){
+                          ajax2()
+                        }
+                    })
+                })
+            //img
+            var file;
+             function getFiles (el) {
+               file=el.files //获取文件属性
+               console.log(file)
+            }
+            $(".btn_flie").click(function(){
+                    var fd = new FormData();
+                    for(var i = 0;i<file.length;i++){
+                        fd.append('files',file[i])
+                    }
+                     //console.log(fd)
+                    $.ajax({
+                        url:'http://localhost:3000/our/img',
+                        type:'POST',
+                        data:fd,
+                        contentType:false,
+                        processData:false,
+                        success:function(e){
+                            console.log(e)
+                        }
+                    }) 
+            })
+           //修改
+            function gai2(){
+              $(".xiugai2").click(function(){
+                var id=$(this).attr("data-id");
+                $(".pr2").attr("data-cc",id)
+                $.ajax({
+                  url:"http://localhost:3000/our/gai",
+                  type:"POST",
+                  data:{gai:id},
+                  success:function(d){
+                    $(".name2").attr('value',d[0].name);
+                    $(".zhiwei2").attr('value',d[0].zhiwei);
+                  }
+                })
+              })
+            }
+            // //确认修改
+              $(".pr2").click(function(){
+                var id=$(this).attr("data-cc");
+                var name=$(".name2").val();
+                var zhiwei=$(".zhiwei2").val();
+                $.ajax({
+                  url:"http://localhost:3000/our/qrgai",
+                  type:"POST",
+                  data:{
+                        name:name,
+                        zhiwei:zhiwei,
+                        id:id
+                      },
+                  success:function(d){
+                    ajax2();
+                     // location.reload() 
+                  }
+
+                })
+              })
+//删除
+function clk2(){
+  $(".delete2").click(function(){
+    var dataid=$(this).attr("data-id")
+    var _this=$(this)
+    $.ajax({
+    url:"http://localhost:3000/our/delete",
+    type:"POST",
+    data:{id:dataid},
+    success:function(d){
+      _this.parent().parent().remove();
+    }
+  })
+})
+}
+function ajax2(){
+  $.ajax({
+    url:"http://localhost:3000/our/tr",
+    type:"POST",
+    success:function(d){ 
+    var str="";
+    for(i in d){
+    str+=`<tr><td><img src="upload/${d[i].img}"><td><button data-id=${d[i].id}  class="xiugai2" data-toggle="modal" data-target="#myModal2">修改</button></br><button class="delete2" data-id=${d[i].id}>删除</button></td></tr>`
+    }
+    $("#tbody2").html(str);
+      clk2()
+      gai2()
+    },
+    error:function(){
+      console.log("服务器错误")
+    }
+  })
+}
+  $.ajax({
+    url:"http://localhost:3000/our/tr",
+    type:"POST",
+    success:function(d){ 
+    var str="";
+    for(i in d){
+    str+=`<tr><td><img src="upload/${d[i].img}"><td><button data-id=${d[i].id}  class="xiugai2" data-toggle="modal" data-target="#myModal2">修改</button></br><button class="delete2" data-id=${d[i].id}>删除</button></td></tr>`
+    }
+    $("#tbody2").html(str);
+      clk2()
+      gai2()
+    }
+  })
+</script>
